@@ -23,7 +23,7 @@ All modules are initialized as `NoDevice` instances. The chain's `update()` meth
 ```c++
 void loop() {
   chain -> update();
-  if (chain.getModule(0) -> getType != ModuleType::NoDevice) {
+  if (chain.getModule(id) -> getType() != ModuleType::NO_DEVICE) {
     // do something with module
   }
 }
@@ -77,7 +77,7 @@ servo -> setColor(uint8_t color); /// LSB bits represent red, blue, and green re
 ```c++
 Servo* servo = 0; // hold servo pointer globally
 void handler(Module* mod) {
-  if (mod -> getType == ModuleType::SERVO) {
+  if (mod -> getType() == ModuleType::SERVO) {
     servo = static_cast<Servo*>(mod); // cast the Module* to a Servo*
     servo -> setPosition(45); // set the servo to the 45 degree position
     servo -> setColor(true, false, false); // set the color to red (the boolean values represent RGB)
@@ -88,7 +88,7 @@ void handler(Module* mod) {
 void loop() {
   chain -> update();
   if (servo) {
-    Serial.println(servo -> getPosition); // will print the most recent data from the servo encoders
+    Serial.println(servo -> getPosition()); // will print the most recent data from the servo encoders
   }
   delay(500);
 }
@@ -116,7 +116,7 @@ led -> setColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t fadeTime);
 ```c++
 LED* led = 0;
 void handler(Module* mod) {
-  if (mod -> getType == ModuleType::LED) {
+  if (mod -> getType() == ModuleType::LED) {
     led = static_cast<LED*>(mod);
     led -> setColor(0x07, 0x00, 0x00, 0x05) // set the color to red with about a ~2 second transition
   }
