@@ -1,10 +1,18 @@
 #include "MeccanoRobot.h"
 
+/* A library to interface with the Meccano Meccanoid by an Arduino. It is 
+ * an improved version of the original Meccano library that can be found on 
+ * their website.
+ *
+ * @author Alexander Frederiksen
+ * @version 06/05/17
+ */
+
 Module::Module(int id) {
 	this -> id = id;
 }
 
-NoDevice::NoDevice(int pin) : Module(pin) {
+NoDevice::NoDevice(int id) : Module(id) {
 	outputData = Chain::DISCOVER_BYTE;
 }
 
@@ -12,7 +20,7 @@ void NoDevice::requestModType() {
 	outputData = Chain::REQUEST_TYPE_BYTE;
 }
 
-Servo::Servo(int pin) : Module(pin) {
+Servo::Servo(int id) : Module(id) {
 	setPosition(90);
 }
 
@@ -62,7 +70,7 @@ uint8_t Servo::getOutputData() {
 	return LIM ? LIM_BYTE : position;
 }
 
-LED::LED(int pin) : Module(pin) {
+LED::LED(int id) : Module(id) {
 	byteStep = 0;
 }
 

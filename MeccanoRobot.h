@@ -4,6 +4,12 @@
 #include <Arduino.h>
 #include <stdint.h>
 
+/* Header file for the Meccanoid library 
+ *
+ * @author Alexander Frederiksen
+ * @version 06/05/17
+ */
+
 class ModuleType {
 	public:
 		static const uint8_t NO_DEVICE = 0x00;
@@ -34,7 +40,7 @@ class NoDevice : public Module {
 		uint8_t outputData;
 
 	public:
-		NoDevice(int pin);
+		NoDevice(int id);
 		uint8_t getType() { return ModuleType::NO_DEVICE; }
 		void requestModType();
 		uint8_t getOutputData() { return outputData; }
@@ -52,7 +58,7 @@ class Servo : public Module {
 		bool changeColor; // flag to override normal operation
 
 	public:
-		Servo(int pin);
+		Servo(int id);
 		uint8_t getType() { return ModuleType::SERVO; }
 		uint8_t getOutputData();
 		void setInputData(uint8_t data);
@@ -72,7 +78,7 @@ class LED : public Module {
 		int byteStep;
 	
 	public:
-		LED(int pin);
+		LED(int id);
 		uint8_t getType() { return ModuleType::LED; }
 		void setColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t fadeTime);
 		uint8_t getOutputData();
