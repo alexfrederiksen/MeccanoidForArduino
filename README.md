@@ -2,10 +2,10 @@
 A library written in C++ to allow an Arduino to interface with the Meccanoid Smart Modules. It is an improved form of the one given by Meccano and includes many more capabilities. You can find the original Meccano library [here](http://www.meccano.com/meccanoid-opensource).
 
 ## Include in your Arduino project
-To include the library, download the source files to your arduino library folder (the one in your workspace). The library source files should be in their own folder named "MeccanoidForArduino". This way it can be added as a library in the Arduino IDE through Sketch -> Include Library -> Add .ZIP Library and then select the folder containing the source files.
+To include the library, download the ZIP file and open Arduino IDE. In the Arduino IDE navigate Sketch -> Include Library -> Add .ZIP Library and select the library ZIP file.
 
 ## Create a module chain
-Smart Modules can either be servos or LEDs. They are commonly daisy-chained for simplicity and can be controlled with a single pin on your microcontroller. There can be a maximum of To create a chain you must give the pin.
+Smart Modules can either be servos or LEDs. They are commonly daisy-chained for simplicity and can be controlled with a single PWM pin on your microcontroller. There can be a maximum of 4 modules in a single chain. The module closest to the pin has an id of 0 while the furthest has an id of 3. To create a chain you only need the PWM pin that the chain connects to. Refer to the [Smart Module Protocol](http://www.meccano.com/meccanoid-opensource) for specifications of pull-up resistors.
 ```c++
 Chain* chain = new Chain(int pwmPin);
 ```
@@ -19,7 +19,7 @@ Method | Description | Example
 `void update()` | updates data between phyical modules and the class | `chain -> update();`
 
 ## Find modules
-All modules are initialized as `NoDevice` instances. The chain's `update()` method should be called to search for modules. They will be found one at time so make sure to call it multiple times. To know a module has been found you can either check if a module exists after each update or you can attach a notification handler.
+All modules are initialized as `NoDevice` instances when the chain constructor is called. The chain's `update()` method should be called to search for modules. They will be found one at time so make sure to call it multiple times. To know whether a module has been found you can either check if a module exists after each update or you can attach a notification handler.
 ```c++
 void loop() {
   chain -> update();
@@ -108,7 +108,7 @@ Method | Description | Example
 The LED module can be set to colors and fade times for transitioning. It takes two updates for the the changes to take into effect because each value (RGB and fade time) is 3 bits, taking a total of 12 bits to send information. Only a byte can be sent at a time for each module. 
 
 ### Set color
-This is really the only special method of this class. It takes a total of 4 bytes, but only LSB 3 bits are used of each byte. Each color value (RGB) ranges from 0x00 to 0x07 and represents the brightness of that color (0x07 being the brightest). The fade time also ranges from 0x00 to 0x07 and represents no transition to a 4 second transition from the previous color respectively.
+This is the only special method of this class. It takes a total of 4 bytes, but only the 3 LSBs are used of each byte. Each color value (RGB) ranges from 0x00 to 0x07 and represents the brightness of that color (0x07 being the brightest). The fade time also ranges from 0x00 to 0x07 and represents no transition to a 4 second transition from the previous color respectively.
 ```c++
 led -> setColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t fadeTime);
 ```
