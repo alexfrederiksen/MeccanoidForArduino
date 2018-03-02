@@ -7,15 +7,15 @@ To include the library, download the ZIP file and open Arduino IDE. In the Ardui
 ## Create a module chain
 Smart Modules can either be servos or LEDs. They are commonly daisy-chained for simplicity and can be controlled with a single PWM pin on your microcontroller. There can be a maximum of 4 modules in a single chain. The module closest to the pin has an id of 0 while the furthest has an id of 3. To create a chain you only need the PWM pin that the chain connects to. Refer to the [Smart Module Protocol](http://www.meccano.com/meccanoid-opensource) for specifications of pull-up resistors.
 ```c++
-Chain* chain = new Chain(int pwmPin);
+Chain * chain = new Chain(int pwmPin);
 ```
 ### Methods of the Chain class
 Method | Description | Example
 -------|-------------|--------
 `Chain(int pin)` | initializes a Chain instance | `Chain* chain = new Chain(6);`
-`Module* getModule(int id)` | returns module with given id (0 - 3) | `Module* mod = chain -> getModule(0);`
+`Module * getModule(int id)` | returns module with given id (0 - 3) | `Module * mod = chain -> getModule(0);`
 `int getCurrentModule()` | return the id of the module that will get data on next update | `int id = chain -> getCurrentModule();`
-`void notifyWhenAvailable(int id, void (*handler)(Module*))` | attached the handler to the id and calls it when the module is found | `chain -> notifyWhenAvailable(0, handlerForMod1);`
+`void notifyWhenAvailable(int id, void (* handler)(Module *))` | attached the handler to the id and calls it when the module is found | `chain -> notifyWhenAvailable(0, handlerForMod1);`
 `void update()` | updates data between phyical modules and the class | `chain -> update();`
 
 ## Find modules
@@ -23,7 +23,7 @@ All modules are initialized as `NoDevice` instances when the chain constructor i
 ```c++
 void loop() {
   chain -> update();
-  if (chain.getModule(id) -> getType() != ModuleType::NO_DEVICE) {
+  if (chain -> getModule(id) -> getType() != ModuleType::NO_DEVICE) {
     // do something with module
   }
 }
@@ -35,7 +35,7 @@ void setup() {
   chain -> notifyWhenAvailable(id, handler);
 }
 
-void handler(Module* mod) {
+void handler(Module * mod) {
   // do something with module
 }
 ```
@@ -75,10 +75,10 @@ servo -> setColor(uint8_t color); /// LSB bits represent red, blue, and green re
 ```
 ### Example
 ```c++
-Servo* servo = 0; // hold servo pointer globally
-void handler(Module* mod) {
+Servo * servo = 0; // hold servo pointer globally
+void handler(Module * mod) {
   if (mod -> getType() == ModuleType::SERVO) {
-    servo = static_cast<Servo*>(mod); // cast the Module* to a Servo*
+    servo = (Servo *)(mod); // cast the Module * to a Servo *
     servo -> setPosition(45); // set the servo to the 45 degree position
     servo -> setColor(true, false, false); // set the color to red (the boolean values represent RGB)
     servo -> setLIM(); // will override previous position set
@@ -114,10 +114,10 @@ led -> setColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t fadeTime);
 ```
 ### Example
 ```c++
-LED* led = 0;
-void handler(Module* mod) {
+LED * led = 0;
+void handler(Module * mod) {
   if (mod -> getType() == ModuleType::LED) {
-    led = static_cast<LED*>(mod);
+    led = (LED *) mod; // perform casting
     led -> setColor(0x07, 0x00, 0x00, 0x05) // set the color to red with about a ~2 second transition
   }
 }
