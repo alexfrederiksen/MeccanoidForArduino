@@ -103,6 +103,13 @@ Chain::Chain(int pin) {
 	}
 }
 
+Chain::~Chain() {
+    // free module data
+    for (int i = 0; i < MAX_MODS; i++) {
+        delete modules[i];
+    }
+}
+
 void Chain::notifyWhenAvailable(int id, NotifyHandler handler) {
 	notifyHandlers[id] = handler;
 }
@@ -125,7 +132,7 @@ void Chain::update() {
 	Module* current = modules[currentMod];	
 	// do initializations if module is undefined
 	if (current -> getType() == ModuleType::NO_DEVICE) {
-		NoDevice* blank = static_cast<NoDevice*>(current);
+		NoDevice * blank = (NoDevice *)(current);
 		if (input == DISCOVER_BYTE) {
 			// module exists, request the module type
 			blank -> requestModType();
@@ -134,9 +141,11 @@ void Chain::update() {
 			// if previously requested type, set accordingly
 			switch (input) {
 				case ModuleType::SERVO:
+                    delete modules[currentMod];
 					modules[currentMod] = new Servo(currentMod);
 					break;
 				case ModuleType::LED:
+                    delete modules[currentMod];
 					modules[currentMod] = new LED(currentMod);
 					break;
 			}

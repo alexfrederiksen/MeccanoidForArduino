@@ -109,7 +109,8 @@ class Chain {
 		static const int SEND_BIT_DELAY = 417; // in microseconds
 		
 		Chain(int pin);
-		
+	    ~Chain();
+    	
 		// getters and setters
 		Module* getModule(int modId) { return modules[modId]; }
 		int getCurrentModule() { return currentMod; }	
