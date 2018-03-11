@@ -22,7 +22,7 @@ Method | Description | Example
 All modules are initialized as `NoDevice` instances when the chain constructor is called. The chain's `update()` method should be called to search for modules. They will be found one at time so make sure to call it multiple times. To know whether a module has been found you can either check if a module exists after each update or you can attach a notification handler.
 ```c++
 void loop() {
-  chain -> update();
+  chain.update();
   if (chain.getModule(id) -> getType() != ModuleType::NO_DEVICE) {
     // do something with module
   }
