@@ -7,32 +7,33 @@ To include the library, download the ZIP file and open Arduino IDE. In the Ardui
 ## Create a module chain
 Smart Modules can either be servos or LEDs. They are commonly daisy-chained for simplicity and can be controlled with a single PWM pin on your microcontroller. There can be a maximum of 4 modules in a single chain. The module closest to the pin has an id of 0 while the furthest has an id of 3. To create a chain you only need the PWM pin that the chain connects to. Refer to the [Smart Module Protocol](http://www.meccano.com/meccanoid-opensource) for specifications of pull-up resistors.
 ```c++
-Chain * chain = new Chain(int pwmPin);
+Chain chain(int pwmPin);
 ```
 ### Methods of the Chain class
 Method | Description | Example
 -------|-------------|--------
-`Chain(int pin)` | initializes a Chain instance | `Chain* chain = new Chain(6);`
-`Module * getModule(int id)` | returns module with given id (0 - 3) | `Module * mod = chain -> getModule(0);`
-`int getCurrentModule()` | return the id of the module that will get data on next update | `int id = chain -> getCurrentModule();`
-`void notifyWhenAvailable(int id, void (* handler)(Module *))` | attached the handler to the id and calls it when the module is found | `chain -> notifyWhenAvailable(0, handlerForMod1);`
-`void update()` | updates data between phyical modules and the class | `chain -> update();`
+`Chain(int pin)` | initializes a Chain instance | `Chain chain(6);`
+`Module * getModule(int id)` | returns module with given id (0 - 3) | `Module * mod = chain.getModule(0);`
+`int getCurrentModule()` | return the id of the module that will get data on next update | `int id = chain.getCurrentModule();`
+`void notifyWhenAvailable(int id, void (* handler)(Module *))` | attached the handler to the id and calls it when the module is found | `chain.notifyWhenAvailable(0, handlerForMod1);`
+`void update()` | updates data between phyical modules and the class | `chain.update();`
 
 ## Find modules
 All modules are initialized as `NoDevice` instances when the chain constructor is called. The chain's `update()` method should be called to search for modules. They will be found one at time so make sure to call it multiple times. To know whether a module has been found you can either check if a module exists after each update or you can attach a notification handler.
 ```c++
 void loop() {
   chain -> update();
-  if (chain -> getModule(id) -> getType() != ModuleType::NO_DEVICE) {
+  if (chain.getModule(id) -> getType() != ModuleType::NO_DEVICE) {
     // do something with module
   }
 }
 ```
 #### Or preferably
 ```c++
+Chain chain(pwmPin);
+
 void setup() {
-  chain = new Chain(pwmPin);
-  chain -> notifyWhenAvailable(id, handler);
+  chain.notifyWhenAvailable(id, handler);
 }
 
 void handler(Module * mod) {
@@ -86,7 +87,7 @@ void handler(Module * mod) {
 }
 
 void loop() {
-  chain -> update();
+  chain.update();
   if (servo) {
     Serial.println(servo -> getPosition()); // will print the most recent data from the servo encoders
   }
