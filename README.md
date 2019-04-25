@@ -1,6 +1,9 @@
 # MeccanoidForArduino
 A library written in C++ to allow an Arduino to interface with the Meccanoid Smart Modules. It is an improved form of the one given by Meccano and includes many more capabilities. You can find the original Meccano library [here](http://www.meccano.com/meccanoid-opensource).
 
+## Note to users
+If you run into any problems or just want an update to the code, please let me know in the issues tab; it's my only route of feedback. (;
+
 ## Include in your Arduino project
 To include the library, download the ZIP file and open Arduino IDE. In the Arduino IDE navigate Sketch -> Include Library -> Add .ZIP Library and select the library ZIP file.
 
