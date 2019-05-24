@@ -45,8 +45,12 @@ void Module :: disconnect() {
 
 /* -- Module adapter -- */
 
-ModuleAdapter :: ModuleAdapter(Module & module) : module(module) {
+ModuleAdapter :: ModuleAdapter(Module & module, Chain & chain) : module(module), chain(chain) {
 
+}
+
+void ModuleAdapter :: setAutoUpdate(bool enable) {
+	autoUpdate = enable;
 }
 
 int ModuleAdapter :: isConnected() {
@@ -64,7 +68,7 @@ int ModuleAdapter :: justConnected() {
 
 /* -- Servo adapter -- */
 
-ServoAdapter :: ServoAdapter(Module & module) : ModuleAdapter(module) {
+ServoAdapter :: ServoAdapter(Module & module, Chain & chain) : ModuleAdapter(module, chain) {
 
 }
 
@@ -72,18 +76,26 @@ int ServoAdapter :: getPosition() {
 	return map(module.lastInput, SERVO_MIN, SERVO_MAX, 0, 180);
 }
 
-void ServoAdapter :: setPosition(int pos) {
+ServoAdapter & ServoAdapter :: setPosition(int pos) {
 	module.output1 = map(pos, 0, 180, SERVO_MIN, SERVO_MAX);
+
+	if (autoUpdate) chain.update();
+
+	return *this;
 }
 
-void ServoAdapter :: setLim(int enable) {
+ServoAdapter & ServoAdapter :: setLim(int enable) {
 	if (enable)
 		module.output1 = LIM_BYTE;
 	else
 		setPosition(getPosition());
+
+	if (autoUpdate) chain.update();
+
+	return *this;
 }
 
-void ServoAdapter :: setColor(byte r, byte g, byte b) {
+ServoAdapter & ServoAdapter :: setColor(byte r, byte g, byte b) {
 	// clamp parameters to 0 or 1 (take LSB)
 	r &= 0x01;
 	g &= 0x01;
@@ -92,6 +104,10 @@ void ServoAdapter :: setColor(byte r, byte g, byte b) {
 	module.output1 = 0xF0 | (r << 0) | 
 	                        (g << 1) | 
 	                        (b << 2);
+
+	if (autoUpdate) chain.update();
+
+	return *this;
 }
 
 int ServoAdapter :: checkType() {
@@ -100,7 +116,7 @@ int ServoAdapter :: checkType() {
 
 /* -- Led adapter -- */
 
-LedAdapter :: LedAdapter(Module & module) : ModuleAdapter(module) {
+LedAdapter :: LedAdapter(Module & module, Chain & chain) : ModuleAdapter(module, chain) {
 
 }
 
@@ -121,9 +137,13 @@ LedAdapter :: LedAdapter(Module & module) : ModuleAdapter(module) {
  *
  */
 
-void LedAdapter :: setColor(byte r, byte g, byte b, byte fadetime){
+LedAdapter & LedAdapter :: setColor(byte r, byte g, byte b, byte fadetime) {
 	module.output1 = 0x3F & (((g << 3) & 0x38) | (r & 0x07));
 	module.output2 = 0x40 | (((fadetime << 3) & 0x38) | (b & 0x07));
+
+	if (autoUpdate) chain.update();
+
+	return *this;
 }
 
 int LedAdapter :: checkType() {
@@ -189,11 +209,11 @@ void Chain :: update() {
 }
 
 MeccanoServo Chain :: getServo(int id) {
-	return ServoAdapter(modules[constrain(id, 0, MAX_CHAIN - 1)]);
+	return ServoAdapter(modules[constrain(id, 0, MAX_CHAIN - 1)], *this);
 }
 
 MeccanoLed Chain :: getLed(int id) {
-	return LedAdapter(modules[constrain(id, 0, MAX_CHAIN - 1)]);
+	return LedAdapter(modules[constrain(id, 0, MAX_CHAIN - 1)], *this);
 }
 
 void Chain :: sendByte(byte data) {

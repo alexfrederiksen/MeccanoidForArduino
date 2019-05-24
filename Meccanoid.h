@@ -54,43 +54,6 @@ struct Module {
 	void disconnect();
 };
 
-class ModuleAdapter {
-
-	protected:
-		Module & module;
-
-	public:
-		ModuleAdapter(Module & module);
-
-		int isConnected();
-		int justConnected();
-		virtual int checkType() = 0;
-};
-
-class ServoAdapter : public ModuleAdapter {
-
-	public:
-		ServoAdapter(Module & module);
-
-		int getPosition();
-		void setPosition(int pos);
-		void setLim(int enable);
-		void setColor(byte r, byte g, byte b);
-
-		int checkType();
-};
-
-class LedAdapter : public ModuleAdapter {
-
-	public:
-		LedAdapter(Module & module);
-
-		void setColor(byte r, byte g, byte b, byte fadetime);
-
-		int checkType();
-
-};
-
 class Chain {
 	int pwmPin;
 	int moduleNum = 0;
@@ -108,3 +71,46 @@ class Chain {
 		MeccanoServo getServo(int id);
 		MeccanoLed getLed(int id);
 };
+
+class ModuleAdapter {
+
+	protected:
+		Module & module;
+		Chain & chain;
+		bool autoUpdate = true;
+
+	public:
+		ModuleAdapter(Module & module, Chain & chain);
+
+		void setAutoUpdate(bool enable);
+		int isConnected();
+		int justConnected();
+		virtual int checkType() = 0;
+
+};
+
+class ServoAdapter : public ModuleAdapter {
+
+	public:
+		ServoAdapter(Module & module, Chain & chain);
+
+		int getPosition();
+		ServoAdapter & setPosition(int pos);
+		ServoAdapter & setLim(int enable);
+		ServoAdapter & setColor(byte r, byte g, byte b);
+
+		int checkType();
+};
+
+class LedAdapter : public ModuleAdapter {
+
+	public:
+		LedAdapter(Module & module, Chain & chain);
+
+		LedAdapter & setColor(byte r, byte g, byte b, byte fadetime);
+
+		int checkType();
+
+};
+
+
