@@ -1,130 +1,94 @@
 # MeccanoidForArduino
-A library written in C++ to allow an Arduino to interface with the Meccanoid Smart Modules. It is an improved form of the one given by Meccano and includes many more capabilities. You can find the original Meccano library [here](http://www.meccano.com/meccanoid-opensource).
+A C++ library for interfacing with the Meccano Meccanoid. My little bro got one of these neat robot dudes a few years back and got bored of it pretty fast. Turns out Meccano released an Arduino library for their guy, but it was quite obnoxious to use and the code quality just wasn't the best (blaming the company not the author). If you like, you can find Meccano's library [here](http://www.meccano.com/meccanoid-opensource).
 
 ## Note to users
-If you run into any problems or just want an update to the code, please let me know in the issues tab; it's my only route of feedback. (;
+If you run into any problems or just want an update to the code, please let me know in the issues tab; it's the only form of feedback I can get. (;
 
 ## Include in your Arduino project
-To include the library, download the ZIP file and open Arduino IDE. In the Arduino IDE navigate Sketch -> Include Library -> Add .ZIP Library and select the library ZIP file.
+To include the library, download the ZIP file and open Arduino IDE. In the Arduino IDE navigate Sketch -> Include Library -> Add .ZIP Library and select the library ZIP file. If you just want to get started, look in the testing folder for some example code. Otherwise, the rest of this document will show you the various things you can do.
 
 ## Create a module chain
-Smart Modules can either be servos or LEDs. They are commonly daisy-chained for simplicity and can be controlled with a single PWM pin on your microcontroller. There can be a maximum of 4 modules in a single chain. The module closest to the pin has an id of 0 while the furthest has an id of 3. To create a chain you only need the PWM pin that the chain connects to. Refer to the [Smart Module Protocol](http://www.meccano.com/meccanoid-opensource) for specifications of pull-up resistors.
+Smart Modules can either be servos or LEDs. They are commonly daisy-chained for simplicity and can be controlled with a single PWM pin on your microcontroller. There can be a maximum of 4 modules in a single chain. The module closest to the pin has an id of 0 while the furthest has an id of 3. To create a chain you only need the PWM pin that the chain connects to. Refer to the [Smart Module Protocol](http://cdn.meccano.com/open-source/Meccano_SmartModuleProtocols_2015.pdf) (SM protocol) for specifications of pull-up resistors.
 ```c++
 Chain chain(int pwmPin);
 ```
-### Methods of the Chain class
-Method | Description | Example
--------|-------------|--------
-`Chain(int pin)` | initializes a Chain instance | `Chain chain(6);`
-`Module * getModule(int id)` | returns module with given id (0 - 3) | `Module * mod = chain.getModule(0);`
-`int getCurrentModule()` | return the id of the module that will get data on next update | `int id = chain.getCurrentModule();`
-`void notifyWhenAvailable(int id, void (* handler)(Module *))` | attached the handler to the id and calls it when the module is found | `chain.notifyWhenAvailable(0, handlerForMod1);`
-`void update()` | updates data between phyical modules and the class | `chain.update();`
 
-## Find modules
-All modules are initialized as `NoDevice` instances when the chain constructor is called. The chain's `update()` method should be called to search for modules. They will be found one at time so make sure to call it multiple times. To know whether a module has been found you can either check if a module exists after each update or you can attach a notification handler.
+## Declaring modules
+To start using the modules in your chain, you must first get their controllers:
 ```c++
-void loop() {
-  chain.update();
-  if (chain.getModule(id) -> getType() != ModuleType::NO_DEVICE) {
-    // do something with module
-  }
-}
-```
-#### Or preferably
-```c++
-Chain chain(pwmPin);
+int chainPin = 8;
 
-void setup() {
-  chain.notifyWhenAvailable(id, handler);
-}
+Chain chain(chainPin);
 
-void handler(Module * mod) {
-  // do something with module
-}
+MeccanoServo servo1 = chain.getServo(0);
+MeccanoServo servo2 = chain.getServo(1);
+MeccanoLed led = chain.getLed(2);
 ```
+Here we're using the Chain::getServo(int id) and Chain::getLed(int id) functions for getting controllers for the modules.
 
-### Methods of the Module class
-Method | Description | Example
--------|-------------|--------
-`int getId()` | return the id of the module (0 - 3) | `int id = mod -> getId();`
-`uint8_t getType()` | return the type of the module (`ModuleType::[NO_DEVICE, SERVO, LED]`) | `bool isServo = mod -> getType() == ModuleType::SERVO;`
+## Using modules
+A key thing to note about modules is that the Arduino gets input from each every 4 calls to `Chain::update()` due to the SM protocol (it has to do with the max modules that can be on a chain). This means it could take time for the Arduino to find the modules on the chain, thus when modules are first declared they are in a disconnected state. Check the `ModuleAdapter::isConnected()` and `ModuleAdapter::justConnected()` methods to know when your module is ready for use.
 
-## Use servo module
-Servo modules can rotate from 0 to 180 degrees and will lock at these positions. They can be set into LIM mode (Learned Intelligent Movement) in which the servos will unlock and can be physically moved. In this mode, they will also provide input from their encoders. By default, the servos are set to the 90 degree position and the color is green. 
+## Using the servo module
+Servo modules can rotate from 0 to 180 degrees and will lock at these positions. They can be set into LIM mode (Learned Intelligent Movement) in which the servos will unlock and can be physically moved. In this mode, they will also provide input from their encoders. Servos also have LEDs that you can change the color of.
 
-### Set position
-The `position` is clamped to 0 to 180 degrees. This will disable LIM once processed in `update()`.
+### Moving servo
 ```c++
-servo -> setPosition(int position);
-```
-### Get position
-This will return data from the encoder if LIM is enabled or the last `setPosition` call otherwise.
-```c++
-int pos = servo -> getPosition();
-```
-### Set LIM mode
-This allows encoder data to be colllected from the servo modules
-```c++
-servo -> setLIM();
-```
-### Set color
-This change will be sent to the servo as top priority on the next update.
-```c++
-servo -> setColor(bool red, bool green, bool blue);
-```
-#### Or
-```c++
-servo -> setColor(uint8_t color); /// LSB bits represent red, blue, and green respectively
-```
-### Example
-```c++
-Servo * servo = 0; // hold servo pointer globally
-void handler(Module * mod) {
-  if (mod -> getType() == ModuleType::SERVO) {
-    servo = (Servo *)(mod); // cast the Module * to a Servo *
-    servo -> setPosition(45); // set the servo to the 45 degree position
-    servo -> setColor(true, false, false); // set the color to red (the boolean values represent RGB)
-    servo -> setLIM(); // will override previous position set
-  }
-}
+...
 
 void loop() {
+  // update chain
   chain.update();
-  if (servo) {
-    Serial.println(servo -> getPosition()); // will print the most recent data from the servo encoders
+  
+  if (servo1.justConnected()) {
+    // set color to red (r: 1, g: 0, b: 0) and pos to 45 degrees
+    servo1.setColor(1, 0, 0)
+          .setPosition(45);
   }
-  delay(500);
 }
+
+...
 ```
-### Methods of the Servo class
-Method | Description | Example
--------|-------------|--------
-`void setPosition(int pos)` | set the position from 0 to 180 degrees | `servo -> setPosition(90);`
-`int getPosition()` | return the position of servo | `int pos = servo -> getPosition();`
-`void setLIM()` | enabled LIM mode on the servo | `servo -> setLIM();`
-`bool isLIM()` | return if LIM is enabled | `bool LIM = servo -> isLIM();`
-`void setColor(bool red, bool green, bool blue)` | sets the module color | `servo -> setColor(true, false, false);`
-`void setColor(uint8_t color)` | set the module color | `servo -> setColor(0x02);`
-`uint8_t getColor()` | return the last `setColor` call | `uint8_t color = servo -> getColor();`
+Note we used `ModuleAdapter::justConnected()` here to see if the previous update found the module. This way the if case only runs once at the servo's discovery. We also use `MeccanoServo::setColor(byte r, byte g, byte b)` where each parameter is 0 or 1, enabling the respective color. Mind the position argument of `MeccanoServo::setPosition(int pos)` can be between 0 and 180 where 0 is fully-clockwise.
+
+### LIM mode
+```c++
+...
+
+void loop() {
+  // update chain
+  chain.update();
+  
+  if (servo2.justConnected()) {
+    // set color to red (r: 1, g: 0, b: 0) and lim mode
+    servo2.setColor(1, 0, 0)
+          .setLim(true);
+  }
+  
+  if (servo2.isConnected()) {
+    Serial.println(servo2.getPosition());
+  }
+}
+
+...
+```
+A thing to note here is that servo's must be in LIM mode to give you sensible values. Also as soon as `MeccanoServo::setPosition` is invoked, LIM mode is disabled and the servo locks as usual.
 
 ## Use LED module
-The LED module can be set to colors and fade times for transitioning. It takes two updates for the the changes to take into effect because each value (RGB and fade time) is 3 bits, taking a total of 12 bits to send information. Only a byte can be sent at a time for each module. 
+The LED module can be set to colors with different fade times for transitioning. 
 
 ### Set color
-This is the only special method of this class. It takes a total of 4 bytes, but only the 3 LSBs are used of each byte. Each color value (RGB) ranges from 0x00 to 0x07 and represents the brightness of that color (0x07 being the brightest). The fade time also ranges from 0x00 to 0x07 and represents no transition to a 4 second transition from the previous color respectively.
+This is the only special method of this class. Each color value (RGB) ranges from 0 to 7 and represents the brightness of that color (7 being the brightest). The fade time also ranges from 0 to 7 and represents no transition to a 4 second transition from the previous color respectively.
 ```c++
-led -> setColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t fadeTime);
-```
-### Example
-```c++
-LED * led = 0;
-void handler(Module * mod) {
-  if (mod -> getType() == ModuleType::LED) {
-    led = (LED *) mod; // perform casting
-    led -> setColor(0x07, 0x00, 0x00, 0x05) // set the color to red with about a ~2 second transition
+void loop() {
+  // update chain
+  
+  if (led.justConnected()) {
+    // set led to greenish color (r: 0 / 7, g: 7 / 7, b: 1 / 7) with (4 / 7) fade time
+    led.setColor(0, 7, 1, 4);
   }
 }
 ```
 
-
+## Advance module usage
+For any change to occur (e.g. color changes), a call to `Chain::update` must occur immediately after setting that property. But as we've seen so far, we don't need to do that. Well under the hood, modules default to doing just that. This was more a measure of convenience than anything and if need be, can be disabled with `ModuleAdapter::setAutoUpdate(bool enable)`. 
