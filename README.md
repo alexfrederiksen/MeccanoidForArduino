@@ -18,17 +18,17 @@ To start using the modules in your chain, you must first get their controllers:
 ```c++
 ...
 
-int chainPin = 8;
+int chainPin = 8; // can be any PWM pin
 
 Chain chain(chainPin);
 
-MeccanoServo servo1 = chain.getServo(0);
-MeccanoServo servo2 = chain.getServo(1);
-MeccanoLed led = chain.getLed(2);
+MeccanoServo servo1 = chain.getServo(0); // servo with id 0
+MeccanoServo servo2 = chain.getServo(1); // servo with id 1
+MeccanoLed led =      chain.getLed(2);   // led with id 2
 
 ...
 ```
-Here we're using the Chain::getServo(int id) and Chain::getLed(int id) functions for getting controllers for the modules.
+Here we're using the `Chain::getServo(int id)` and `Chain::getLed(int id)` functions for getting controllers for the modules.
 
 ## Using modules
 A key thing to note about modules is that the Arduino gets input from each every 4 calls to `Chain::update()` due to the SM protocol (it has to do with the max modules that can be on a chain). This means it could take time for the Arduino to find the modules on the chain, thus when modules are first declared they are in a disconnected state. Check the `ModuleAdapter::isConnected()` and `ModuleAdapter::justConnected()` methods to know when your module is ready for use.
@@ -99,4 +99,4 @@ void loop() {
 ```
 
 ## Advance module usage
-For any change to occur (e.g. color changes), a call to `Chain::update` must occur immediately after setting that property. But as we've seen so far, we don't need to do that. Well under the hood, modules default to doing just that. This was more a measure of convenience than anything and if need be, can be disabled with `ModuleAdapter::setAutoUpdate(bool enable)`. 
+For any change to occur (e.g. color changes), a call to `Chain::update` must occur immediately after setting that property. But as we've seen so far, this isn't necessary. Well under the hood, `ModuleAdapter`'s default to doing just that. This was more a measure of convenience than anything and if need be, can be disabled with `ModuleAdapter::setAutoUpdate(bool enable)`. 
