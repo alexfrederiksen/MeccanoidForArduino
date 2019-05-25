@@ -70,7 +70,7 @@ void updateServo(Servo servo, int servoNum) {
     delay(500);
     
     // make servo floppy
-    servo.setLim(1);
+    servo.setLim(true);
   }
 
   if (servo.isConnected()) {

@@ -141,7 +141,10 @@ LedAdapter & LedAdapter :: setColor(byte r, byte g, byte b, byte fadetime) {
 	module.output1 = 0x3F & (((g << 3) & 0x38) | (r & 0x07));
 	module.output2 = 0x40 | (((fadetime << 3) & 0x38) | (b & 0x07));
 
-	if (autoUpdate) chain.update();
+	if (autoUpdate) {
+		chain.update();
+		chain.update();
+	}
 
 	return *this;
 }
