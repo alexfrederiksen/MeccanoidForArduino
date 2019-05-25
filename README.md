@@ -36,7 +36,7 @@ A key thing to note about modules is that the Arduino gets input from each every
 ## Using the servo module
 Servo modules can rotate from 0 to 180 degrees and will lock at these positions. They can be set into LIM mode (Learned Intelligent Movement) in which the servos will unlock and can be physically moved. In this mode, they will also provide input from their encoders. Servos also have LEDs that you can change the color of.
 
-### Moving servo
+### Moving servos
 ```c++
 ...
 
@@ -78,10 +78,10 @@ void loop() {
 ```
 A thing to note here is that servo's must be in LIM mode to give you sensible values. Also as soon as `MeccanoServo::setPosition` is invoked, LIM mode is disabled and the servo locks as usual.
 
-## Use LED module
+## Using the LED module
 The LED module can be set to colors with different fade times for transitioning. 
 
-### Set color
+### Setting colors
 This is the only special method of this class. Each color value (RGB) ranges from 0 to 7 and represents the brightness of that color (7 being the brightest). The fade time also ranges from 0 to 7 and represents no transition to a 4 second transition from the previous color respectively.
 ```c++
 ...
