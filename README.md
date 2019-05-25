@@ -16,6 +16,8 @@ Chain chain(int pwmPin);
 ## Declaring modules
 To start using the modules in your chain, you must first get their controllers:
 ```c++
+...
+
 int chainPin = 8;
 
 Chain chain(chainPin);
@@ -23,6 +25,8 @@ Chain chain(chainPin);
 MeccanoServo servo1 = chain.getServo(0);
 MeccanoServo servo2 = chain.getServo(1);
 MeccanoLed led = chain.getLed(2);
+
+...
 ```
 Here we're using the Chain::getServo(int id) and Chain::getLed(int id) functions for getting controllers for the modules.
 
@@ -80,6 +84,8 @@ The LED module can be set to colors with different fade times for transitioning.
 ### Set color
 This is the only special method of this class. Each color value (RGB) ranges from 0 to 7 and represents the brightness of that color (7 being the brightest). The fade time also ranges from 0 to 7 and represents no transition to a 4 second transition from the previous color respectively.
 ```c++
+...
+
 void loop() {
   // update chain
   
@@ -88,6 +94,8 @@ void loop() {
     led.setColor(0, 7, 1, 4);
   }
 }
+
+...
 ```
 
 ## Advance module usage
