@@ -44,7 +44,7 @@ void loop() {
   if (led.isConnected()) {
     // change to random color every 15 steps
     if (step % 15 == 0) {
-      led.setColor(random(8), random(8), random(8), 0x03);
+      led.setColor(random(8), random(8), random(8), 0);
     }
   }
   

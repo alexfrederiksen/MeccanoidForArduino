@@ -58,7 +58,7 @@ int ModuleAdapter :: isConnected() {
 }
 
 int ModuleAdapter :: justConnected() {
-	if (module.justConnected) {
+	if (module.justConnected && checkType()) {
 		module.justConnected = 0;
 		return 1;
 	} else {
@@ -150,7 +150,7 @@ LedAdapter & LedAdapter :: setColor(byte r, byte g, byte b, byte fadetime) {
 }
 
 int LedAdapter :: checkType() {
-	return module.type = TYPE_LED;
+	return module.type == TYPE_LED;
 }
 
 /* -- Chain -- */
