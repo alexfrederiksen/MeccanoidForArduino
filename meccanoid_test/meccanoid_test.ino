@@ -4,7 +4,7 @@
 typedef MeccanoServo Servo;
 typedef MeccanoLed   Led;
 
-/* Note that their needs to be a 22k ohm pull-resitor on chain input,
+/* Note that their needs to be a 22k ohm pull-up resistor on chain input,
  * See http://www.meccano.com/meccanoid-opensource Smart Module Protocol 
  * (bottom of PDF) for more details. */
  
@@ -22,9 +22,10 @@ Led led =      chain.getLed(2);   // third on chain  (2)
 int step = 0;
 
 void setup() {
-  // put your setup code here, to run once:
+  // startup serial
   Serial.begin(9600);
 
+  // seed random number generator for led
   randomSeed(analogRead(0));
 }
 
