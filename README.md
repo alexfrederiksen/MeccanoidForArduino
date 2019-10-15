@@ -1,8 +1,5 @@
 # MeccanoidForArduino
-A C++ library for interfacing with the Meccano Meccanoid. My little bro got one of these neat robot dudes a few years back and got bored of it pretty fast. Turns out Meccano released an Arduino library for their guy, but it was quite obnoxious to use and the code quality just wasn't the best (blaming the company not the author). So I wrote my own adaptation of it to make writing code for the robot much easier and more elegant. If you like, you can still find the company's library [here](http://www.meccano.com/meccanoid-opensource), just note that it can bit more difficult to use and can't be updated like this project can.
-
-## Note to users
-If you run into any problems or just want an update to the code, please let me know in the issues tab; it's my only form of feedback. (;
+A C++ library for interfacing with the Meccano Meccanoid. If you have any questions, leave them in the issues tab. If you feel you can make this better, pull requests are greatly respected.
 
 ## Include in your Arduino project
 To include the library, download the ZIP file and open Arduino IDE. In the Arduino IDE navigate Sketch -> Include Library -> Add .ZIP Library and select the library ZIP file. If you just want to get started, look in the testing folder for some example code. Otherwise, the rest of this document will show you the various things you can do.
